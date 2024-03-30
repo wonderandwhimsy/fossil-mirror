@@ -228,6 +228,7 @@ struct Global {
   const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+  const char *zCgiFile;      /* Name of the CGI file */
 #if USE_SEE
   const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
                            * applicable when using SEE on Windows or Linux. */
@@ -1573,9 +1574,18 @@ void sigsegv_handler(int x){
   size = backtrace(array, sizeof(array)/sizeof(array[0]));
   strings = backtrace_symbols(array, size);
   blob_init(&out, 0, 0);
-  blob_appendf(&out, "Segfault during %s", g.zPhase);
+  blob_appendf(&out, "Segfault during %s in fossil %s",
+               g.zPhase, MANIFEST_VERSION);
   for(i=0; i<size; i++){
-    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+    size_t len;
+    const char *z = strings[i];
+    if( i==0 ) blob_appendf(&out, "\nBacktrace:");
+    len = strlen(strings[i]);
+    if( z[0]=='[' && z[len-1]==']' ){
+      blob_appendf(&out, " %.*s", (int)(len-2), &z[1]);
+    }else{
+      blob_appendf(&out, " %s", z);
+    }
   }
   fossil_panic("%s", blob_str(&out));
 #else
@@ -2342,7 +2352,6 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
-  const char *zFile;
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
@@ -2358,14 +2367,14 @@ void cmd_cgi(void){
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
-    zFile = g.argv[2];
+    g.zCgiFile = g.argv[2];
   }else if( g.argc>=2 ){
-    zFile = g.argv[1];
+    g.zCgiFile = g.argv[1];
   }else{
     cgi_panic("No CGI control file specified");
   }
   /* Read and parse the CGI control file. */
-  blob_read_from_file(&config, zFile, ExtFILE);
+  blob_read_from_file(&config, g.zCgiFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
@@ -3012,10 +3021,10 @@ static void sigalrm_handler(int x){
   sqlite3_uint64 tmUser = 0, tmKernel = 0;
   fossil_cpu_times(&tmUser, &tmKernel);
   if( fossil_strcmp(g.zPhase, "web-page reply")==0
-   && tmUser+tmKernel<1000000
+   && tmUser+tmKernel<10000000
   ){
     /* Do not log time-outs during web-page reply unless more than
-    ** 1 second of CPU time has been consumed */
+    ** 10 seconds of CPU time has been consumed */
     return;
   }
   fossil_panic("Timeout after %d seconds during %s"
