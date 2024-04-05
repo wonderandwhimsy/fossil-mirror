@@ -1,5 +1,5 @@
-C Removed\sall\sreferences\sto\s"Fossil\s2.1x"\sfrom\sthe\sdocs,\sexcepting\sthe\nchangelog\sand\sthe\shashpolicy\sdoc.\s\sThe\sbulk\sof\sthese\swere\sfor\s2.14\sor\nolder\s—\s*ten*\sversions\sback\snow!\s—\sand\sthere\sis\sno\sreason\sto\ssuppose\nsuch\sold\sversions\sare\sstill\sin\suse\sany\smore.\s\sThese\snotes\swere\sjustified\nwhen\sthey\sinformed\susers\sabout\ssurprising\schanges\sand\sfeature\sadditions,\nbut\sthey\snow\sdo\snothing\sbut\sclutter\sthe\sdocs.\s\sIf\sI\sam\swrong\sabout\npeople\sbeing\ssurprised\sby\sthese\sthings,\swe\sstill\shave\sthe\schangelog,\sthe\ntimeline,\sand\sthe\sforum.
-D 2024-03-30T20:48:35.924
+C Cherry-pick\sSQLite\schanges\sintended\sfor\strunk.
+D 2024-04-04T21:07:45.913
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -274,8 +274,8 @@ F extsrc/pikchr.c 598eea7de6f0d7aeb90079642605a6ccff13d96cf3405283500339473833d6
 F extsrc/pikchr.js bf23761009296341d6423974cd7a67cadec6f79944f3e3dcc49a0bfc2a28cd05
 F extsrc/pikchr.wasm de56cf6f1d7faab2cb4627b5131c490ba3fbaa47fb7f75e8e02026aa8438f77c
 F extsrc/shell.c ced25f272a08a3d9994a45e9428c30fb4493aaacb12720fe0b89ca6c72276f49
-F extsrc/sqlite3.c 99d4f935bb619f694b4ef8f47477da5c50a5444d663258f18c542477a47cbbee
-F extsrc/sqlite3.h b0f7c8b923ac27eb36e9d39bb5fc54bb065a9090dad406b354bcad851d8162d0
+F extsrc/sqlite3.c 3897acf96e13f550ea3b70d1fcf937098de172e44c25a37d08f749c011c8c5b9
+F extsrc/sqlite3.h 1b70976b47e601de8a06b9c183c5fe5160e5d0f54c7112a026f90baa51b8fc2b
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -562,7 +562,7 @@ F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c ccbd40d0c0807b52d283dac6c056b2e96c56dcc1ae906f7fb96e557fc93a237d
-F src/tag.c aeb3dcda74a50cb228545be32d240999e667644ddc24fa360b5163e26e874c22
+F src/tag.c 8a30a3019bfbba61d9d685974aff4415c1c01773a319cffa3320042d1a743e6e
 F src/tar.c b6a23b6fa52a62880071710c412152b48a0626a01eeedfef4862826d6c4d71c6
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
@@ -957,8 +957,9 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3cac5259349653094619b7a9a5dc66f99e13293f6e7e8476cff715cf6526c08
-R 57984e05abd065a1ddce31cc3a525981
-U wyoung
-Z 784577753998e7436e6dfb701fdc03ce
+P 72add409649d9c3f66c6c0b1a990747a320b02995b642006c5dbb0328fc4a791
+Q +755bebae805816b2c6c6fa53b95a354695f8d5ab7d4e1cce287bccd3dfdff4eb
+R 53d2bfd75ff7d0c75b9bce2352d2f53d
+U danield
+Z 82bf9050ea9fea2b07ed7691b2ca4bbe
 # Remove this line to create a well-formed Fossil manifest.
