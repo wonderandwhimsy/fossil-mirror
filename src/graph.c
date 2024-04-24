@@ -981,7 +981,10 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     **
     **    0x04      The preferred branch
     **
-    **    0x02      A merge rail - a rail that contains merge lines
+    **    0x02      A merge rail - a rail that contains merge lines into
+    **              the preferred branch.  Only applies if a preferred branch
+    **              is defined.  This improves the display of r=BRANCH
+    **              options to /timeline.
     **
     **    0x01      A rail that merges with the preferred branch
     */
@@ -998,6 +1001,11 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
         }
       }
+      for(i=0; i<=p->mxRail; i++){
+        if( p->mergeRail & BIT(i) ){
+          aPriority[i] |= 2;
+        }
+      }
     }else{
       j = 1;
       aPriority[0] = 4;
@@ -1008,11 +1016,6 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           }
           if( pRow->mergeOut>=0 ) aPriority[pRow->mergeOut] |= 1;
         }
-      }
-    }
-    for(i=0; i<=p->mxRail; i++){
-      if( p->mergeRail & BIT(i) ){
-        aPriority[i] |= 2;
       }
     }
 
