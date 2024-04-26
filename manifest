@@ -1,5 +1,5 @@
-C Fix\sor\sdisable\sbrittle\stest\scases\sthat\swere\sbroken\sby\schanges\sin\s2.23.
-D 2024-04-24T21:19:54.521
+C Updates\sto\sthe\s"hints\sand\stricks"\sdocument.
+D 2024-04-25T15:37:36.420
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -595,7 +595,7 @@ F src/xfersetup.c 91456753ed7097ee17b6e4052e091f13893e6c0f26c804bc41c967e864605b
 F src/zip.c bb0767a627953d909af866e2f0fa3ff5fa697a154d313191c203b3b8eaaf84fe
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 2aed6a36b110978350f60679afc7282e3c4833d13e706cfa2e709b668321785d
+F test/amend.test c1ea044297b09158caa5c800b2017bcf807d0138cc8c8901ba464bcb8798bafb
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -665,7 +665,7 @@ F test/unversioned.test 2293bb58141d7d9030dcadaa4f1a47ce13de99e0008f186b9ec005e1
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/update.test c13ead0c26bf794b038db9a40c2ecc2858df8b6d0df15991c4d8d2e67f6db93c
-F test/utf.test 2564b5c242004b0e30d8029ac0de3f98db2b0fa5e6943516053cf549b5c18596
+F test/utf.test c2426351ad7a2ea1fd9f8ea16284a62155080fcebbc33b17065b7f2235bd1f5d
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
@@ -848,7 +848,7 @@ F www/gsoc-ideas.md 3f2317b1f0c067f7bd19af734e21bb1557f88145580305b09dd509eb8c48
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 0ad9fb7af0f21d16dde0062f7909765f9aac2005fe28ffcc7af6e616be5bbc3e
 F www/hashpolicy.wiki de49bc15473801c37306ae83419e6a7d80d77cc6b61b43d5c5c2486bee2f5f00
-F www/hints.wiki a28dcaff80e4e36693571728b463e9c0649976ded01d5985b2b57547db72a5b7
+F www/hints.wiki 241f3d562a990bba37fdf6a9e66e4afb57ec0e865f990f257329a9f11a8e305a
 F www/history.md ec29ba623dceb4d162772bb6faa81a8fbdbff81f0d5c742e158d998d9a00aedb
 F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
@@ -957,8 +957,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b71363e5c51f1192b06720bb159aa4f42eaf8233ba759ec6cd2c49bfff855d0e
-R f14b5d3e3e8bb543f68d22fe23e788f7
+P f0c4705d4923981870ffcf4b4e330c701fc28e4bca4a456f161059e4f89b2f2f
+R f766312db621233eb784941595ea23e7
 U drh
-Z 7706ac260f08ff41ffcf47dfb43f42dc
+Z ddb7b205ce484de6db2c2526817cec42
 # Remove this line to create a well-formed Fossil manifest.
