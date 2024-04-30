@@ -595,24 +595,6 @@ void status_cmd(void){
   }
 }
 
-/*
-** Characters used for drawing a file hierarchy graph.
-*/
-#if _WIN32
-/* ASCII only available on Windows */
-#define ENTRY   "|-- "
-#define LASTE   "`-- "
-#define CONTU   "|   "
-#define BLANK   "    "
-#else
-/* All other platforms support Unicode box-drawing chracters */
-#define ENTRY   "\342\224\234\342\224\200\342\224\200 "
-#define LASTE   "\342\224\224\342\224\200\342\224\200 "
-#define CONTU   "\342\224\202   "
-#define BLANK   "    "
-#endif
-
-
 /* zIn is a string that is guaranteed to be followed by \n.  Return
 ** a pointer to the next line after the \n.  The returned value might
 ** point to the \000 string terminator.
@@ -648,21 +630,29 @@ static const char *print_filelist_section(
   const char *zIn,           /* List of filenames, separated by \n */
   const char *zLast,         /* Last filename in the list to print */
   const char *zPrefix,       /* Prefix so put before each output line */
-  int nDir                   /* Ignore this many characters of directory name */
+  int nDir,                  /* Ignore this many characters of directory name */
+  int treeFmt                /* 1 = use Unicode symbols, 2 = use ASCII chars */
 ){
+  /* Unicode box-drawing characters: U+251C, U+2514, U+2502 */
+  const char *treeEntry = "\342\224\234\342\224\200\342\224\200 ";
+  const char *treeLastE = "\342\224\224\342\224\200\342\224\200 ";   
+  const char *treeContu = "\342\224\202   ";
+  const char *treeBlank = "    ";
+
   while( zIn<=zLast ){
     int i;
     for(i=nDir; zIn[i]!='\n' && zIn[i]!='/'; i++){}
     if( zIn[i]=='/' ){
       char *zSubPrefix;
       const char *zSubLast = last_line(zIn, i+1);
-      zSubPrefix = mprintf("%s%s", zPrefix, zSubLast==zLast ? BLANK : CONTU);
-      fossil_print("%s%s%.*s\n", zPrefix, zSubLast==zLast ? LASTE : ENTRY,
-                   i-nDir, &zIn[nDir]);
-      zIn = print_filelist_section(zIn, zSubLast, zSubPrefix, i+1);
+      zSubPrefix = mprintf("%s%s", zPrefix,
+                          zSubLast==zLast ? treeBlank : treeContu);
+      fossil_print("%s%s%.*s\n", zPrefix,
+                   zSubLast==zLast ? treeLastE : treeEntry, i-nDir, &zIn[nDir]);
+      zIn = print_filelist_section(zIn, zSubLast, zSubPrefix, i+1, treeFmt);
       fossil_free(zSubPrefix);
     }else{
-      fossil_print("%s%s%.*s\n", zPrefix, zIn==zLast ? LASTE : ENTRY,
+      fossil_print("%s%s%.*s\n", zPrefix, zIn==zLast ? treeLastE : treeEntry,
                    i-nDir, &zIn[nDir]);
       zIn = next_line(zIn);
     }
@@ -675,14 +665,14 @@ static const char *print_filelist_section(
 ** in sorted order and with / directory separators.  Output this list
 ** as a tree in a manner similar to the "tree" command on Linux.
 */
-static void print_filelist_as_tree(Blob *pList){
+static void print_filelist_as_tree(Blob *pList, int treeFmt){
   char *zAll;
   const char *zLast;
   fossil_print("%s\n", g.zLocalRoot);
   zAll = blob_str(pList);
   if( zAll[0] ){
     zLast = last_line(zAll, 0);
-    print_filelist_section(zAll, zLast, "", 0);
+    print_filelist_section(zAll, zLast, "", 0, treeFmt);
   }
 }
 
@@ -762,7 +752,7 @@ static void ls_cmd_rev(
   }
   db_finalize(&q);
   if( treeFmt ){
-    print_filelist_as_tree(&out);
+    print_filelist_as_tree(&out, treeFmt);
     blob_reset(&out);
   }
 }
@@ -794,13 +784,13 @@ static void ls_cmd_rev(
 **
 ** Options:
 **   --age                 Show when each file was committed
-**   -v|--verbose          Provide extra information about each file
-**   -t                    Sort output in time order
-**   --tree                Tree format
-**   -r VERSION            The specific check-in to list
-**   -R|--repository REPO  Extract info from repository REPO
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes
+**   -r VERSION            The specific check-in to list
+**   -R|--repository REPO  Extract info from repository REPO
+**   -t                    Sort output in time order
+**   --tree                Tree format
+**   -v|--verbose          Provide extra information about each file
 **
 ** See also: [[changes]], [[extras]], [[status]], [[tree]]
 */
@@ -954,12 +944,11 @@ void ls_cmd(void){
 */
 void tree_cmd(void){
   const char *zRev;
-
   zRev = find_option("r","r",1);
   if( zRev==0 ) zRev = "current";
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  ls_cmd_rev(zRev,0,0,0,1);
+  ls_cmd_rev(zRev, 0, 0, 0, 1);
 }
 
 /*
@@ -1033,7 +1022,7 @@ void extras_cmd(void){
                    g.zLocalRoot);
     }
     if( treeFmt ){
-      print_filelist_as_tree(&report);
+      print_filelist_as_tree(&report, treeFmt);
     }else{
       blob_write_to_file(&report, "-");
     }
