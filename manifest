@@ -1,5 +1,5 @@
-C Fix\san\suninitialized\svariable\sbug\sintroduced\sby\s[a080751e5c370833].
-D 2024-05-10T10:02:36.684
+C In\s/chat,\sadd\sa\sconfig\soption\sto\saudibly\snotify\sonly\sfor\sthe\sfirst\smessage\sreceived\swhen\sthe\stab\sis\snot\svisible,\sand\sthen\sremain\ssilent\suntil\schat\sis\svisited\sagain.
+D 2024-05-15T21:11:01.351
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -441,7 +441,7 @@ F src/fossil.dom.js 6f01211a90f22126e3cce41814622902e8aff903950b09be8f992f09c0e0
 F src/fossil.fetch.js 55c8dcd5636e970f7a5392c19e37b0d889ad75bd939434a11abe2449194c57d4
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
 F src/fossil.page.brlist.js 4246e4a86ca63f55f83dc6fc79942b05e9b78beba0442b3f8f51b3c8c9267720
-F src/fossil.page.chat.js 353b598a6671ee4ac281de15d848fe299ce8ecb9ec1524c46db3b865d77c9514
+F src/fossil.page.chat.js b1aa83a1ca012093382168d8409493075d9c191930e3a8309609ce4f50f37faa
 F src/fossil.page.fileedit.js 13b122a7992f8db7ed24f06c49e9e7f4f8584599f42f4e46f230c108063bdcc5
 F src/fossil.page.forumpost.js cc6cbb6396bb95552d013ff1bbec971a83376c8f4c168a2528a6764bc29b7e08
 F src/fossil.page.pikchrshow.js 354e405e2813de4bfeec16d12a4dbfb370b2fa89f25325f245c51c194115adbf
@@ -562,7 +562,7 @@ F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
 F src/sync.c ccbd40d0c0807b52d283dac6c056b2e96c56dcc1ae906f7fb96e557fc93a237d
-F src/tag.c 8a30a3019bfbba61d9d685974aff4415c1c01773a319cffa3320042d1a743e6e
+F src/tag.c b5064ca775bf81aafc71d6161bb39415d0753fd765de83b2adeb4b64edd7d541
 F src/tar.c b6a23b6fa52a62880071710c412152b48a0626a01eeedfef4862826d6c4d71c6
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
 F src/th.c 7383ab45bd0fca16f607b30b60c6b71645d29f87bcb65d400350bdac06368cf5
@@ -958,8 +958,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e68958586315c3cebb9c9c259219671dde1840e5da429565a065a100e2deaeb
-R 36cc3b3d6f97615f565f0e94a17b120e
-U drh
-Z a102dad336f2a227451eace01a45638c
+P ea1b76bc9abdf00f46688ff72f6a973fd5e7b0dd45e5a005f8998c0b47767212
+R 489c4ee847058c2e3877da765874a2d5
+U stephan
+Z 9ca53833a877fc1b68f3973dea18d36e
 # Remove this line to create a well-formed Fossil manifest.
