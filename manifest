@@ -1,5 +1,5 @@
-C The\ssublist\sof\srobot\sdefenses\sunder\ssecurity\saudit\sshould\suse\sa,b,c,...\nnot\s1,2,3,...
-D 2024-07-29T22:39:01.390
+C Tweak\sthe\ssync\scommand\shelp\stext\sto\sclarify\sthat\sthe\sURL\sargument\smay\sinstead\sbe\sa\sconfigured\sremote\sname,\sas\ssuggested\sin\s[forum:24c658568a|forum\spost\s24c658568a].\sNo\sfunctional\schanges.
+D 2024-07-30T12:44:37.523
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -381,7 +381,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 2c1866f703796d33774f0b961523a1f489ce6e0d1788534829b8467b586767a9
+F src/allrepo.c c6a65f0884be4f13d02d04f3c3fa2239711f4c841cafff96178d92d1f975563a
 F src/attach.c 6eb936f9976bbbae8b98b1645539c98091bbc43ca4e8f3ea9cf9e51211f8708c
 F src/backlink.c e79a38fc0bbcdae1912bed05cb7a2df9741c78aec4dafe48f20ca5d377b4357f
 F src/backoffice.c ecb3997466581e6a3290e4d194ac59b7678e9236de1d18c0ed489df141d75f49
@@ -562,7 +562,7 @@ F src/style.fileedit.css 31d32b2d036f814d6bcb3a1dfaabc306babb7bef879626970d85eba
 F src/style.pikchrshow.css 46046a8efd847b778e44e5f31ea05bfbe70a80592f33c0f8ef9a2673e5c0d3bb
 F src/style.uvlist.css 7b6a497b7e816461e6aa47210fa03c7ab8b618a93d8bc005d029636f12099fbe
 F src/style.wikiedit.css 83243f9873a70e0e1b940b57789aad76b84dc222300b1203a9ffb0f88d807587
-F src/sync.c ccbd40d0c0807b52d283dac6c056b2e96c56dcc1ae906f7fb96e557fc93a237d
+F src/sync.c d1b08d5c54647991dde2529e199ea08d9cd67ef7d141e1f2b33adbe06b3fd4ca
 F src/tag.c b5064ca775bf81aafc71d6161bb39415d0753fd765de83b2adeb4b64edd7d541
 F src/tar.c b6a23b6fa52a62880071710c412152b48a0626a01eeedfef4862826d6c4d71c6
 F src/terminal.c 7f284dd1392def382140da6c6c103dc9b2d61c4f477610231442e8dafc91629e
@@ -884,7 +884,7 @@ F www/json-api/hacking.md 5e916b51718458ceef1f2641c2c29774eaa89f8817f02dc77b91aa
 F www/json-api/index.md 1f06115e752536000e1a6aaca37f4e44671f4b9c89b4ce6b7024522224f142bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
-F www/loadmgmt.md 4c251aab5d71a55a832919dcf1ee7390b04bec9495f45d5fc1cd37aa9c6d38dc
+F www/loadmgmt.md 09ddb13024bd3fbbb85dd2eb11be279d478db3db5d0757299fd236ba28e92499
 F www/makefile.wiki 39cfe5bb11593a5c22feef02d0d741595e42d9d7db052b567adad53c697e4b2a
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9018c6f22ae8afc0f96dd941db01cb507c3f0f0d67cf56360a8176e378c4eb77
-R 9dbb8cf44468148bdcdd4634f0da436e
-U drh
-Z 7d2282380d02b32131efd07c14f804c2
+P 939e8c4076a0ff95751366583eb9f68c80856c7206eefe511cb14645341f2698
+R 554736e6c340ddd054eebcbf1be2ca01
+U stephan
+Z 7a7f0e16e4ba92586f909808cc8a97af
 # Remove this line to create a well-formed Fossil manifest.
