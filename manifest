@@ -1,5 +1,5 @@
-C Revert\sthe\stemporary\sfix\s[9866c97b35]\sas\sthe\sunderlying\sproblem\shas\sbeen\sresolved\sin\sSQLite.
-D 2024-08-31T17:30:00.000
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk,\sjust\sso\swe\scan\sstay\son\sthe\nbleeding\sedge.
+D 2024-09-02T22:20:32.621
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -273,9 +273,9 @@ F extsrc/pikchr-worker.js 7f5a32facd883132213cd5de3da823cdf5777edb876d4450f26bc3
 F extsrc/pikchr.c 85e65b968651b342c46e6334f4772b45d6cbb4317c5cbaa95d207779a50c6709
 F extsrc/pikchr.js ef8475dfa65cdeff238905f1d7c5d22af6d576eb073b84789f6cb9d00d8f2585
 F extsrc/pikchr.wasm e1c849f2a839522073ee700e0b1f51a9a453cb702a5181e0ff25cfc32f59bc47
-F extsrc/shell.c da3281e5650269e96bbcf2ddbd9ad2d7d4f495979d534dd0412d28f01241de4d
-F extsrc/sqlite3.c e3e47bf915a26e7ba44034de688593ef14b4341f00211d78e2055a317d74133c
-F extsrc/sqlite3.h 1702f1c1e36c9b351924ab3fca70b1f27206a7bcc403036a1ba1e5c19cb49b8c
+F extsrc/shell.c 81b55b1250bb6c3ed37bb6044f39343e4f706171787f9aa98f0b4ae05e21de24
+F extsrc/sqlite3.c 616894956aae011b38c6fd711f741e2f4d2d9315122add744baf88b9de1db224
+F extsrc/sqlite3.h 3daf837767f3fd267801d5bd8dae979658917b5f862912903901daad2a45d53c
 F fossil.1 bd002c154b826e6fbf622f39c6118f0170dc56fc558ff0ba3f7cc8e9896ed945
 F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec7f3
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -411,7 +411,7 @@ F src/cookies.c d34f041d999a812b91f92db874cae8674046e5c9a4acfe69b9a9c6a34cc6cadb
 F src/copybtn.js c857d2195aebc31b78ee9d556bd15ff25eafbfa57b4783f429fa9316aa7e1723
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 0904ec73c5e5fa4e74dfaa0d860329411de055f63d31b4d755875ce765cebc64
-F src/default.css b3f99b4184f6484b1010f1206aff63f8c537603c588fcf16a4878cb9a605a6ff
+F src/default.css d51d7ccc398512b179957fd207c1185a85b865a85d56e253509f3d499cc138c1
 F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
@@ -959,9 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94c8af02ea1c1731aa1f076fea4b6093cba3f96196afc2aa8efdd21551a6bb39
-Q -9866c97b357062f8ef3c3f5a5aa92c065d0de1f3d82655d0a4cb343dd44aeccf
-R 928afbd5e1da8845fd2d9893a43537c4
-U florian
-Z a1a2969561ffc6cac59338330bcce09e
+P 2126566e942aee506966034385c0786b502c26e9ee4b2461873ef3f89573f3ea
+R 5d9cdc466fa9cfd3b85b517be1b16d88
+U drh
+Z 1a5ff3552a75ae0f52e3ad69d808f163
 # Remove this line to create a well-formed Fossil manifest.
