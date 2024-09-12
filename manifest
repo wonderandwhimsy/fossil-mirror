@@ -1,5 +1,5 @@
-C Adapt\sglob\stests\sto\schanges\sfrom\s[dc86831179].
-D 2024-09-10T06:26:00.000
+C Add\sa\scomment\sto\sthe\stest\sscripts\sthat\sthe\slist\sof\ssettings\sneeds\sto\sbe\supdated\smanually.
+D 2024-09-11T16:22:00.000
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -489,7 +489,7 @@ F src/json_user.c 704493f1c59ee2334901cee31e286d3cf688b76517c297dae395d5cd896a92
 F src/json_wiki.c df0c1612d98ca775462fe536bc565f47af16819a90f0d26027af3f1828221a16
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/loadctrl.c a0084f20c12c5d8f3053140ce1b72ad13e2a6ed963a4e7bb7d8fafc54095d22a
-F src/login.c 7907301682914cb44add99a245c871456fc7801b63955fdfbe883c904c856520
+F src/login.c 83a6bcf7a08c87eb5ed3115f7f3adc5ccb97940592605027024e81e1fc1184fa
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c cbd75a7747b5f45b85c56d91630171cafc684864f9959462afcb2ea924bd9c3d
 F src/main.c 09de277fb95dcfd250c535864204b70d60d974fa1591c9d14a189c3d87dbd2c6
@@ -636,7 +636,7 @@ F test/revert.test abbddaa272ec0ed5e5d9ffbee5636eefc242e45e383abac8e27e45ddd84ac
 F test/rewrite-test-output.tcl fc2affc10d2ce6911836db498990d72ce5ba6e911cc5036d5f78391c022843ef
 F test/set-manifest.test 0f7a5f05fef7b4a3995ce7384feecde313e542d197c3d2d8c5324ef8177f791c
 F test/settings-repo.test 26de9519938c46bcfbe263a55bbef7e0921b28ac53bcb14dde0b7f18f08fd41f
-F test/settings.test 7a54b57d4a7ab1d2b6cf8ad919ebd447fdfc42b31a586ef8d7c50644d1d3ba36
+F test/settings.test c2a59ad1b2d0fdd61ec9accd84d1f58fb1bf78577e47cec6d79d865655b8cbf3
 F test/stash.test cc97b53b3e9460505091cf591dc68392a2a379831181914069353488219b6131
 F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -645,7 +645,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 1ca2a95db55563fd16c4591037248a9fd7db36007cd4a0ea64c59051acac4e89
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 09464151d287a63324eb4bd51b4a1588dff9a849354a1fe0da2f213583cb843d
+F test/tester.tcl 032143ee427f58fdf14bb47eb73574c58eefd39a4de30d3a2d586f5dee9b45bf
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 17be4d6a571e59568261d7be7e18dbf92eca61dda2ab5c66d8b6853ad0fabb2d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -809,7 +809,7 @@ F www/defcsp.md 9acc92726d34c94be1ad4e011101043aff08a6e6cf78d54e0daebe16e2bf3e49
 F www/delta-manifests.md 906357ba85aab092d43875ad4f28230bc2b2601371388d7a177fb13453b332c4
 F www/delta_encoder_algorithm.wiki 3a178f152bf2fe72a6ee610a303e253e0bc467aaa055b6311776ed5578c913d4
 F www/delta_format.wiki 33a3f71dc160959bd4c612e7ffee5be54548990e53eb0f6d9b50779c8767bd58
-F www/embeddeddoc.wiki 661639dd3e68b83a33b3f70b7bf1013906afec256c0561abf96d38ab6ef031a0
+F www/embeddeddoc.wiki e1bfbd848daa038b29f09d58d695144563ebc1af10138f4458ba988a5dd05c83
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -959,8 +959,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki db69ec24453087f8dc738fda7718deb44388df30982d12c47752033063442039
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 268bb7394713e22ee4ab5cf9c1073be6b9d83eaa7f261c612d8c459ac2a32bac
-R 61b23c693b801c6a088f08b61dcd3e46
+P 6ead7d999e9c1446b0a8941b729fbead8edfa24216b02cb8769b54b3a143c1c2
+R 05e06911590c010be0129cda4eceabd9
 U florian
-Z acff9b4b2053b43c054ff5726ca70baa
+Z bc2ba3c7ad88eae6a6f45e798274701c
 # Remove this line to create a well-formed Fossil manifest.
