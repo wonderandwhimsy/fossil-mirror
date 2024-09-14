@@ -8,11 +8,14 @@ window.fossil.onPageLoad(function(){
      /info and similar pages.
   */
   const D = window.fossil.dom;
+  const isFdiff = !!document.querySelector('body.fdiff');
   const addToggle = function(diffElem){
     const sib = diffElem.previousElementSibling,
           btn = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
     if(!sib) return;
-    D.append(sib,btn);
+    if(isFdiff) sib.parentElement.insertBefore(
+                  D.append(D.div(),btn),sib.nextElementSibling);
+    else D.append(sib,btn);
     btn.addEventListener('click', function(){
       diffElem.classList.toggle('hidden');
     }, false);
@@ -640,6 +643,7 @@ window.fossil.onPageLoad(function(){
        efficient than array.shift() (see loop below). */
     /* /filedit */ 'body.cpage-fileedit #fileedit-tab-diff-buttons',
     /* /wikiedit */ 'body.cpage-wikiedit #wikiedit-tab-diff-buttons',
+    /* /fdiff */ 'body.fdiff form div.submenu',
     /* /vdiff */ 'body.vdiff form div.submenu',
     /* /info, /vinfo */ 'body.vinfo div.sectionmenu.info-changes-menu'
   ];
