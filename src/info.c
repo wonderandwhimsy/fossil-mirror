@@ -1195,11 +1195,13 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zGlob;
+  Glob * pGlob = 0;
   char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
   DiffConfig DCfg, *pCfg = 0;
   int graphFlags = 0;
-  Blob qp;
+  Blob qp;                /* non-glob= query parameters for generated links */
+  Blob qpGlob;            /* glob= query parameter for generated links */
   int bInvert = PB("inv");
 
   login_check_credentials();
@@ -1207,6 +1209,7 @@ void vdiff_page(void){
   login_anonymous_available();
   fossil_nice_default();
   blob_init(&qp, 0, 0);
+  blob_init(&qpGlob, 0, 0);
   diffType = preferred_diff_type();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
@@ -1250,7 +1253,8 @@ void vdiff_page(void){
     if( !*zGlob ){
       zGlob = NULL;
     }else{
-      blob_appendf(&qp, "&glob=%T", zGlob);
+      blob_appendf(&qpGlob, "&glob=%T", zGlob);
+      pGlob = glob_create(zGlob);
     }
   }
   if( PB("nc") ){
@@ -1267,16 +1271,18 @@ void vdiff_page(void){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
   }
   if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b", &qp);
+    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b%b", &qp, &qpGlob);
   }
   if( diffType!=2 ){
-    style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b", &qp);
+    style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b%b", &qp,
+                          &qpGlob);
   }
   if( diffType!=1 ) {
-    style_submenu_element("Unified Diff", "%R/vdiff?diff=1&%b", &qp);
+    style_submenu_element("Unified Diff", "%R/vdiff?diff=1&%b%b", &qp, &qpGlob);
   }
   if( zBranch==0 ){
-    style_submenu_element("Invert","%R/vdiff?diff=%d&inv&%b", diffType, &qp);
+    style_submenu_element("Invert","%R/vdiff?diff=%d&inv&%b%b", diffType,
+                          &qp, &qpGlob);
   }
   if( zGlob ){
     style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b", diffType, &qp);
@@ -1325,6 +1331,7 @@ void vdiff_page(void){
     @<hr><p>
   }
   blob_reset(&qp);
+  blob_reset(&qpGlob);
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
@@ -1341,13 +1348,13 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
+      if( !pGlob || glob_match(pGlob, pFileFrom->zName) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid, 0, 0, pCfg, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
+      if( !pGlob || glob_match(pGlob, pFileTo->zName) ){
         append_file_change_line(zTo, pFileTo->zName,
                                 0, pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
@@ -1357,8 +1364,8 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      if(!zGlob || (sqlite3_strglob(zGlob, pFileFrom->zName)==0
-                || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
+      if(!pGlob || (glob_match(pGlob, pFileFrom->zName)
+                    || glob_match(pGlob, pFileTo->zName)) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, pCfg,
@@ -1368,6 +1375,7 @@ void vdiff_page(void){
       pFileTo = manifest_file_next(pTo, 0);
     }
   }
+  glob_free(pGlob);
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType);
