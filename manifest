@@ -1,5 +1,5 @@
-C Updated\sman\spage.
-D 2024-10-31T02:37:48.638
+C Fix\sthe\slongestCommonSequence()\sroutine\sso\sthat\sit\sworks\seven\swith\svery\slarge\nnegative\sscores\sthat\scan\sresult\sfrom\sfiles\swith\shundreds\sof\sthousands\sof\slines\nof\stext.\s\s[forum/forumpost/27e77558ad21ffed|forum\sthread\s27e77558ad21ffed].
+D 2024-10-31T23:09:47.349
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 679cf0b793f345a23e6dab55174511758d5fa28dd7724f61bab41d2b75c288c2
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -9,7 +9,7 @@ F .fossil-settings/ignore-glob ec33bee0751eb55ec94623f8ef7cf569b06645c2d7ab08b2e
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
-F BUILD.txt 56c74af24ea3be90ea585c8e54a16a3e785371a97a1816c2db95bd40bd115895
+F BUILD.txt a92d9dc35ad8b4dfb7c1e35278362da66ccbc5a41ee6decdd8727e17fd4542e0
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 2054fbcf2af6a12d67375f377d2779f4e30bcc19815af1c6e0c588f9c0e18063
 F Makefile.classic 198aed285fca2d894a9397a2bda66b741922655634e31f9ab77ab1f446b1c0ae
@@ -416,7 +416,7 @@ F src/delta.c ecfddedf473cc46daf6a6ac4cccc6f1520aea55a6710833700e6d3e7165d4b09
 F src/deltacmd.c 58c88d904fb1c7bbb2c79915fc15640a40b02fddeceacc69368cca09fa2a0fff
 F src/deltafunc.c b0b2887e83633d6353e2d7d9e3ffc1c808c978ca5821397812bffaaafdb9a611
 F src/descendants.c 8e67c6284bf69b09766b317ffe36c28b8e1e4a40f556ac85d0efec6811823705
-F src/diff.c 17aafb7d56aa68ad53d7d1c18d8aea6c73567511f98c1d4c41bd3c724e6d07d4
+F src/diff.c ffd16af7f9dd3eb22aace9f29ee69420b4632382b31fffc4e5682b6ec090f959
 F src/diff.js 804610908c7eafac7bb0bbdde07f7656feb09d89543d131cdb0b3b4cfa00f5e2
 F src/diff.tcl dfd41ab6ab2a2cbeae52af73e75d8b589d89c3cf304dfcfb020b790f050dc294
 F src/diffcmd.c e11ab5f28e58d80735eaafc6b29fd78d479571bd767553bb8a685018790d1285
@@ -960,8 +960,8 @@ F www/whyusefossil.wiki 5678210f5e82178b9e4104f19e4b43c87ea824663e294b8cbcc5503c
 F www/wikitheory.wiki 9f664eb4fa24d97afbe2b1375d78069a5ad534c36c40f003bcdf5f428692771d
 F www/wsl_caveats.wiki dc4a8388b29d05641ad4d9769c18cbe49963d000dbdc3a9dd6f616ccbcf12dea
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1995ab123e5ae4bd22530479a29d8367ce98f0ed24c17848cb9d3f2987c4af28
-R 4ec5d9e183b061a69276be157d405706
-U brickviking
-Z 918e1ea64ac814ee3415a2b693afba13
+P 48d7f4370f967ab0a15dbaead8a6609cc5264b6f8a221e83586a2d8fed839a57
+R b499a4cac4d1f705928efc39c81ea659
+U drh
+Z db9fe83ba23069b15080cf73e7bd1b1d
 # Remove this line to create a well-formed Fossil manifest.
