@@ -222,11 +222,14 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
   }else{
     char res[20];
     char *pr = res;
-    const char *pt = (char *)asn1_time->data;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    #define ASN1_STRING_get0_data ASN1_STRING_data
+#endif
+    const char *pt = (const char *)ASN1_STRING_get0_data(asn1_time);
     /*                   0123456789 1234
     **  UTCTime:         YYMMDDHHMMSSZ      (YY >= 50 ? 19YY : 20YY)
     **  GeneralizedTime: YYYYMMDDHHMMSSZ */
-    if( asn1_time->length < 15 ){
+    if( ASN1_STRING_length(asn1_time) < 15 ){
       /* UTCTime, fill out century digits */
       *pr++ = pt[0]>='5' ? '1' : '2';
       *pr++ = pt[0]>='5' ? '9' : '0';
@@ -249,7 +252,7 @@ static const char *ssl_asn1time_to_iso8601(ASN1_TIME *asn1_time,
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
-static void ssl_global_init_client(int bDebug){
+static void ssl_global_init_client(void){
   const char *identityFile;
 
   if( sslIsInit==0 ){
@@ -269,7 +272,7 @@ static void ssl_global_init_client(int bDebug){
     zFile = 0;
     for(i=0; zFile==0 && i<5; i++){
       switch( i ){
-        case 0: /* First priority is environmentn variables */
+        case 0: /* First priority is environment variables */
           zFile = fossil_getenv(X509_get_default_cert_file_env());
           break;
         case 1:
@@ -303,26 +306,6 @@ static void ssl_global_init_client(int bDebug){
           break;
         }
       }
-      if( zFile ) break;
-    }
-    if( bDebug ){
-      fossil_print("case-0:  X509_get_default_cert_file_env = %s\n",
-                   X509_get_default_cert_file_env());
-      fossil_print("case-1:  X509_get_default_cert_dir_env = %s\n",
-                   X509_get_default_cert_dir_env());
-      fossil_print("case-2:  ssl-ca-location = %s\n",
-             g.repositoryOpen ? db_get("ssl-ca-location","(none)") : "(none)");
-      fossil_print("case-3:  X509_get_default_cert_file = %s\n",
-                   X509_get_default_cert_file());
-      fossil_print("case-4:  X509_get_default_cert_dir = %s\n",
-                   X509_get_default_cert_dir());
-      if( i>=5 ){
-        fossil_print("No trust store found.\n");
-      }else{
-        fossil_print("case-used    = %d\n"
-                     "zCaFile      = %s\n"
-                     "zCaDirectory = %s\n", i, zCaFile, zCaDirectory);
-      }
     }
     if( zFile==0 ){
       /* fossil_fatal("Cannot find a trust store"); */
@@ -341,7 +324,9 @@ static void ssl_global_init_client(int bDebug){
 ** currently set these options when building OpenSSL for Windows. */
 #if defined(_WIN32)
 #if OPENSSL_VERSION_NUMBER >= 0x030200000
-    if( SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0 ){
+    if( SSLeay()!=0x30500000  /* Don't use for 3.5.0 due to a bug */
+     && SSL_CTX_load_verify_store(sslCtx, "org.openssl.winstore:")==0
+    ){
       fossil_print("NOTICE: Failed to load the Windows root certificates.\n");
     }
 #endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
@@ -355,17 +340,10 @@ static void ssl_global_init_client(int bDebug){
       identityFile = db_get("ssl-identity", 0);
     }
     if( identityFile!=0 && identityFile[0]!='\0' ){
-      if( bDebug ){
-        fossil_print("identifyFile = %s\n", identityFile);
-      }
       if( SSL_CTX_use_certificate_chain_file(sslCtx,identityFile)!=1
        || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
       ){
         fossil_fatal("Could not load SSL identity from %s", identityFile);
-      }
-    }else{
-      if( bDebug ){
-        fossil_print("No identify file found.\n");
       }
     }
     /* Register a callback to tell the user what to do when the server asks
@@ -387,18 +365,8 @@ void ssl_global_shutdown(void){
     ssl_clear_errmsg();
     sslIsInit = 0;
   }
+  socket_global_shutdown();
 }
-
-/*
-** COMMAND: test-trust-store
-**
-** Show the trust store that is used by OpenSSL. 
-*/
-void test_openssl_trust_store(void){
-  ssl_global_init_client(1);
-  ssl_global_shutdown();
-}
-
 
 /*
 ** Close the currently open client SSL connection.  If no connection is open,
@@ -410,6 +378,7 @@ void ssl_close_client(void){
     BIO_free_all(iBio);
     iBio = NULL;
   }
+  socket_close();
 }
 
 /* See RFC2817 for details */
@@ -485,41 +454,31 @@ void ssl_disable_cert_verification(void){
 int ssl_open_client(UrlData *pUrlData){
   X509 *cert;
   const char *zRemoteHost;
+  BIO *sBio;
 
-  ssl_global_init_client(0);
+  ssl_global_init_client();
+  if( socket_open(pUrlData) ){
+    ssl_set_errmsg("SSL: cannot open socket (%s)", socket_errmsg());
+    return 1;
+  }
+  sBio = BIO_new_socket(socket_get_fd(), 0);
   if( pUrlData->useProxy ){
-    int rc;
-    char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
-    BIO *sBio = BIO_new_connect(connStr);
-    free(connStr);
-    if( BIO_do_connect(sBio)<=0 ){
-      ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
-            pUrlData->name, pUrlData->port,
-            ERR_reason_error_string(ERR_get_error()));
-      ssl_close_client();
-      return 1;
-    }
-    rc = establish_proxy_tunnel(pUrlData, sBio);
+    int rc = establish_proxy_tunnel(pUrlData, sBio);
     if( rc<200||rc>299 ){
       ssl_set_errmsg("SSL: proxy connect failed with HTTP status code %d", rc);
+      ssl_close_client();
       return 1;
     }
 
     pUrlData->path = pUrlData->proxyUrlPath;
-
-    iBio = BIO_new_ssl(sslCtx, 1);
-    BIO_push(iBio, sBio);
-    zRemoteHost = pUrlData->hostname;
-  }else{
-    iBio = BIO_new_ssl_connect(sslCtx);
-    zRemoteHost = pUrlData->name;
   }
-  if( iBio==NULL ) {
-    ssl_set_errmsg("SSL: cannot open SSL (%s)",
-                    ERR_reason_error_string(ERR_get_error()));
-    return 1;
-  }
+  iBio = BIO_new_ssl(sslCtx, 1);
+  BIO_push(iBio, sBio);
+  BIO_set_ssl(sBio, ssl, BIO_NOCLOSE);
+  BIO_set_ssl_mode(iBio, 1);
   BIO_get_ssl(iBio, &ssl);
+
+  zRemoteHost = pUrlData->useProxy ? pUrlData->hostname : pUrlData->name;
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
   if( !SSL_set_tlsext_host_name(ssl, zRemoteHost)){
@@ -540,23 +499,10 @@ int ssl_open_client(UrlData *pUrlData){
   }
 #endif
 
-  if( !pUrlData->useProxy ){
-    char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);
-    BIO_set_conn_hostname(iBio, connStr);
-    free(connStr);
-    if( BIO_do_connect(iBio)<=0 ){
-      ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
-         pUrlData->name, pUrlData->port,
-         ERR_reason_error_string(ERR_get_error()));
-      ssl_close_client();
-      return 1;
-    }
-  }
-
-  if( BIO_do_handshake(iBio)<=0 ) {
+  if( BIO_do_handshake(iBio)<=0 ){
     ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)",
-        pUrlData->useProxy?pUrlData->hostname:pUrlData->name,
-        pUrlData->useProxy?pUrlData->proxyOrigPort:pUrlData->port,
+        zRemoteHost,
+        pUrlData->useProxy ? pUrlData->proxyOrigPort : pUrlData->port,
         ERR_reason_error_string(ERR_get_error()));
     ssl_close_client();
     return 1;
@@ -648,28 +594,6 @@ int ssl_open_client(UrlData *pUrlData){
       }
       blob_reset(&ans);
     }
-  }
-
-  /* Set the Global.zIpAddr variable to the server we are talking to.
-  ** This is used to populate the ipaddr column of the rcvfrom table,
-  ** if any files are received from the server.
-  */
-  {
-  /* As soon as libressl implements
-  ** BIO_ADDR_hostname_string/BIO_get_conn_address.
-  ** check here for the correct LIBRESSL_VERSION_NUMBER too. For now: disable
-  */
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L \
-      && !defined(LIBRESSL_VERSION_NUMBER)
-    char *ip = BIO_ADDR_hostname_string(BIO_get_conn_address(iBio),1);
-    g.zIpAddr = mprintf("%s", ip);
-    OPENSSL_free(ip);
-#else
-    /* IPv4 only code */
-    const unsigned char *ip;
-    ip = (const unsigned char*)BIO_ptr_ctrl(iBio,BIO_C_GET_CONNECT,2);
-    g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-#endif
   }
 
   X509_free(cert);
@@ -950,8 +874,8 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 #endif /* FOSSIL_ENABLE_SSL */
 
 /*
-** COMMAND: tls-config*
-** COMMAND: ssl-config
+** COMMAND: tls-config*                       abbrv-subcom
+** COMMAND: ssl-config                        abbrv-subcom
 **
 ** Usage: %fossil ssl-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
 **
@@ -961,16 +885,16 @@ static void trust_location_usable(const char *zPath, const char **pzStore){
 **
 ** Sub-commands:
 **
-**   remove-exception DOMAINS    Remove TLS cert exceptions for the domains
-**                               listed.  Or remove them all if the --all
-**                               option is specified.
+**    remove-exception DOMAINS    Remove TLS cert exceptions for the domains
+**                                listed.  Or remove them all if the --all
+**                                option is specified.
 **
-**   scrub ?--force?             Remove all SSL configuration data from the
-**                               repository. Use --force to omit the
-**                               confirmation.
+**    scrub ?--force?             Remove all SSL configuration data from the
+**                                repository. Use --force to omit the
+**                                confirmation.
 **
-**   show ?-v?                   Show the TLS configuration. Add -v to see
-**                               additional explanation
+**    show ?-v?                   Show the TLS configuration. Add -v to see
+**                                additional explanation
 */
 void test_tlsconfig_info(void){
   const char *zCmd;
@@ -1025,8 +949,8 @@ void test_tlsconfig_info(void){
       );
     }
 #else
-    fossil_print("OpenSSL-version:      %s  (0x%09x)\n",
-         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+    fossil_print("OpenSSL-version:      %s  (0x%09llx)\n",
+         SSLeay_version(SSLEAY_VERSION), (unsigned long long)SSLeay());
     if( verbose ){
       fossil_print("\n"
          "  The version of the OpenSSL library being used\n"
@@ -1087,16 +1011,14 @@ void test_tlsconfig_info(void){
     }
 
 #if defined(_WIN32)
-#if OPENSSL_VERSION_NUMBER >= 0x030200000
-    fossil_print("  OpenSSL-winstore:   Yes\n");
-#else /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
-    fossil_print("  OpenSSL-winstore:   No\n");
-#endif /* OPENSSL_VERSION_NUMBER >= 0x030200000 */
+    fossil_print("  OpenSSL-winstore:   %s\n",
+         (SSLeay()>=0x30200000 && SSLeay()!=0x30500000) ? "Yes" : "No");
     if( verbose ){
       fossil_print("\n"
-         "    OpenSSL 3.2.0, or newer, use the root certificates managed by\n"
-         "    the Windows operating system. The installed root certificates\n"
-         "    are listed by the command:\n\n"
+         "    OpenSSL 3.2.0, or newer, but not version 3.5.0 due to a bug,\n"
+         "    are able to use the root certificates managed by the Windows\n"
+         "    operating system. The installed root certificates are listed\n"
+         "    by the command:\n\n"
          "        certutil -store \"ROOT\"\n\n"
       );
     }
@@ -1258,7 +1180,7 @@ wellknown_notfound:
 char *fossil_openssl_version(void){
 #if defined(FOSSIL_ENABLE_SSL)
   return mprintf("%s (0x%09x)\n",
-         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
+         SSLeay_version(SSLEAY_VERSION), (sqlite3_uint64)SSLeay());
 #else
   return mprintf("none");
 #endif

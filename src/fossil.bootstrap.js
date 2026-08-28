@@ -19,6 +19,10 @@
 
   const F = global.fossil;
 
+  /** Creates a prototype-less plain object with properties derived
+      from all of its object-type arguments. */
+  F.nu = (...obj)=>Object.assign(Object.create(null),...obj);
+
   /**
      Returns the current time in something approximating
      ISO-8601 format.
@@ -56,7 +60,7 @@
   **
   ** Returns this object.
   */
-  F.message = function f(msg){
+  F.message = function f(){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
     if(args.length) args.unshift(
@@ -86,22 +90,21 @@
     );
   }
   /*
-  ** By default fossil.error() sends its first argument to
+  ** By default fossil.error() sends all arguments to
   ** console.error(). If fossil.message.targetElement (yes,
   ** fossil.message) is set, it adds the 'error' CSS class to
   ** that element and sets its content as defined for message().
   **
   ** Returns this object.
   */
-  F.error = function f(msg){
+  F.error = function f(){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = F.message.targetElement;
     args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.add('error');
       tgt.innerText = args.join(' ');
-    }
-    else{
+    }else{
       args.unshift('Fossil error:');
       console.error.apply(console,args);
     }
@@ -282,15 +285,17 @@
   };
 
   /**
-     Sets the innerText of the page's TITLE tag to
-     the given text and returns this object.
+     Sets the innerText of the page's TITLE tag to the given text and
+     returns this object. If passed a falsy value then the title is
+     reverted to its page-load-time value.
    */
-  F.page.setPageTitle = function(title){
+  F.page.setPageTitle = function f(title){
     const t = document.querySelector('title');
-    if(t) t.innerText = title;
+    if(t) t.innerText = title || f.$orig;
     return this;
   };
-
+  F.onPageLoad(()=>F.page.setPageTitle.$orig
+               = document.querySelector('title').innerText);
   /**
      Returns a function, that, as long as it continues to be invoked,
      will not be triggered. The function will be called after it stops

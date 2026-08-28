@@ -131,7 +131,7 @@ static const unsigned char aFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 160*strlen(zPw) + 9 );
+  char *z = fossil_malloc( 224*strlen(zPw) + 9 );
   int i, j, k, m;
 
   k = 0;
@@ -148,8 +148,12 @@ char *captcha_render(const char *zPw){
           z[k++] = 0x96;
           z[k++] = 0x88;
         }else{
-          z[k++] = ' ';
-          z[k++] = ' ';
+          z[k++] = 0xe2;
+          z[k++] = 0x96;
+          z[k++] = 0x91;
+          z[k++] = 0xe2;
+          z[k++] = 0x96;
+          z[k++] = 0x91;
         }
       }
       z[k++] = ' ';
@@ -485,13 +489,13 @@ char *captcha_render(const char *zPw){
 */
 void test_captcha(void){
   int i;
-  unsigned int v;
+  sqlite3_uint64 v;
   char *z;
 
   for(i=2; i<g.argc; i++){
     char zHex[30];
-    v = (unsigned int)atoi(g.argv[i]);
-    sqlite3_snprintf(sizeof(zHex), zHex, "%x", v);
+    v = (sqlite3_uint64)strtoll(g.argv[i],0,0);
+    sqlite3_snprintf(sizeof(zHex), zHex, "%llx", v);
     z = captcha_render(zHex);
     fossil_print("%s:\n%s", zHex, z);
     free(z);
@@ -511,7 +515,7 @@ unsigned int captcha_seed(void){
   return x;
 }
 
-/* The SQL that will rotate the the captcha-secret. */
+/* The SQL that will rotate the captcha-secret. */
 static const char captchaSecretRotationSql[] = 
 @ SAVEPOINT rotate;
 @ DELETE FROM config
@@ -531,7 +535,7 @@ static const char captchaSecretRotationSql[] =
 
 /*
 ** Create a new random captcha-secret.  Rotate the old one into
-** the captcha-secret-N backups.  Purge captch-secret-N backups
+** the captcha-secret-N backups.  Purge captcha-secret-N backups
 ** older than 6 hours.
 **
 ** Do this on the current database and in all other databases of
@@ -561,7 +565,7 @@ void captcha_secret_rotate(void){
 
 /*
 ** Return the value of the N-th more recent captcha-secret.  The
-** most recent captch-secret is 0.  Others are prior captcha-secrets
+** most recent captcha-secret is 0.  Others are prior captcha-secrets
 ** that have expired, but are retained for a limited period of time
 ** so that pending anonymous login cookies and/or captcha dialogs
 ** don't malfunction when the captcha-secret changes.
@@ -746,7 +750,7 @@ void captcha_test(void){
     @ to see how HEX would be rendered in the current captcha font.
     @ <h2>Debug/Testing Values:</h2>
     @ <ul>
-    @ <li> g.isHuman = %d(g.isHuman)
+    @ <li> g.isRobot = %d(g.isRobot)
     @ <li> g.zLogin = %h(g.zLogin)
     @ <li> login_cookie_welformed() = %d(login_cookie_wellformed())
     @ <li> captcha_is_correct(1) = %d(captcha_is_correct(1)).
@@ -760,6 +764,14 @@ void captcha_test(void){
     @ </pre>
     style_finish_page();
   }
+}
+
+/*
+** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
+*/
+void honeypot_page(void){
+  (void)exclude_spiders(0);
 }
 
 /*
@@ -778,7 +790,6 @@ void captcha_test(void){
 */
 int exclude_spiders(int bTest){
   if( !bTest ){
-    if( g.isHuman ) return 0;  /* This user has already proven human */
     if( g.zLogin!=0 ) return 0;  /* Logged in.  Consider them human */
     if( login_cookie_wellformed() ){
       /* Logged into another member of the login group */
@@ -788,13 +799,10 @@ int exclude_spiders(int bTest){
 
   /* This appears to be a spider.  Offer the captcha */
   style_set_current_feature("captcha");
-  style_header("I think you are a robot");
+  style_header("Captcha");
   style_submenu_enable(0);
   @ <form method='POST' action='%R/ityaar'>
-  @ <p>You seem like a robot.
-  @
-  @ <p>If you are human, you can prove that by solving the captcha below,
-  @ after which you will be allowed to proceed.
+  @ <h2>Prove that you are human:
   if( bTest ){
     @ <input type="hidden" name="istest" value="1">
   }
@@ -832,7 +840,7 @@ void captcha_callback(void){
     }
     login_redirect_to_g();
   }else{
-    g.isHuman = 0;
+    g.isRobot = 1;
     (void)exclude_spiders(bTest);
     if( bTest ){
       @ <hr><p>Wrong code.  Try again

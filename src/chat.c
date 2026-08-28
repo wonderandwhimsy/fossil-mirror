@@ -218,6 +218,7 @@ void chat_webpage(void){
   @   </div>
   @   <div id='chat-user-list'></div>
   @ </div>
+  @ <button id='chat-clear-filter' class='hidden'>Clear filter</button>
   @ <div id='chat-preview' class='hidden chat-view'>
   @  <header>Preview: (<a href='%R/md_rules' target='_blank'>markdown reference</a>)</header>
   @  <div id='chat-preview-content'></div>
@@ -240,6 +241,11 @@ void chat_webpage(void){
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
+  @ <div id='chat-zoom' class='hidden chat-view'>
+  @  <div id='chat-zoom-content'></div>
+  @  <div class='button-bar'><button class='action-close'>Close Zoom</button></div>
+  @ </div>
+  @ <span id='chat-zoom-marker' class='hidden'><!-- placeholder marker for zoomed msg --></span>
   fossil_free(zProjectName);
   fossil_free(zInputPlaceholder0);
   builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch",
@@ -256,7 +262,8 @@ void chat_webpage(void){
   @   fromcli: %h(PB("cli")?"true":"false"),
   @   alertSound: "%h(zAlert)",
   @   initSize: %d(db_get_int("chat-initial-history",50)),
-  @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
+  @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1)),
+  @   pollTimeout: %d(db_get_int("chat-poll-timeout",420))
   @ };
   ajax_emit_js_preview_modes(0);
   chat_emit_alert_list();
@@ -292,6 +299,7 @@ static const char zChatSchema1[] =
 ** exist.
 */
 void chat_rebuild_index(int bForce){
+  if( !db_table_exists("repository","chat") ) return;
   if( bForce!=0 ){
     db_multi_exec("DROP TABLE IF EXISTS chatfts1");
   }
@@ -318,7 +326,7 @@ void chat_rebuild_index(int bForce){
 ** them if they do not. Set up TEMP triggers (if needed) to update the
 ** chatfts1 table as the chat table is updated.
 */
-static void chat_create_tables(void){
+void chat_create_tables(void){
   if( !db_table_exists("repository","chat") ){
     db_multi_exec(zChatSchema1/*works-like:""*/);
   }else if( !db_table_has_column("repository","chat","lmtime") ){
@@ -392,6 +400,21 @@ static void chat_emit_permissions_error(int fAsMessageList){
 }
 
 /*
+** Like chat_emit_permissions_error() but emits a single
+** /chat-message-format JSON object about a CSRF violation.
+*/
+static void chat_emit_csrf_error(void){
+  char * zTime = cgi_iso8601_datestamp();
+  cgi_set_content_type("application/json");
+  CX("{");
+  CX("\"isError\": true, \"xfrom\": null,");
+  CX("\"mtime\": %!j, \"lmtime\": %!j,", zTime, zTime);
+  CX("\"xmsg\": \"CSRF validation failure.\"");
+  CX("}");
+  fossil_free(zTime);
+}
+
+/*
 ** WEBPAGE: chat-send hidden loadavg-exempt
 **
 ** This page receives (via XHR) a new chat-message and/or a new file
@@ -422,6 +445,9 @@ void chat_send_webpage(void){
   login_check_credentials();
   if( 0==g.perm.Chat ) {
     chat_emit_permissions_error(0);
+    return;
+  }else if( g.eAuthMethod==AUTH_COOKIE && 0==cgi_csrf_safe(1) ){
+    chat_emit_csrf_error();
     return;
   }
   zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
@@ -1204,7 +1230,7 @@ void chat_msg_from_event(
 **                               previously undownloaded content is retrieved.
 **        --debug                Additional debugging output
 **        --out DATABASE         Store CHAT table in separate database file
-**                               DATABASE rather that adding to local clone
+**                               DATABASE rather than adding to local clone
 **        --unsafe               Allow the use of unencrypted http://
 **
 ** > fossil chat send [ARGUMENTS]
@@ -1222,6 +1248,15 @@ void chat_msg_from_event(
 ** > fossil chat url
 **
 **      Show the default URL used to access the chat server.
+**
+** > fossil chat purge
+**
+**      Remove chat messages that are older than chat-keep-days and
+**      which are not one of the most recent chat-keep-count message.
+**
+** > fossil chat reindex
+**
+**      Rebuild the full-text search index for chat
 **
 ** Additional subcommands may be added in the future.
 */
@@ -1322,7 +1357,7 @@ void chat_command(void){
                        "\r\n%s\r\n%s", zMsg, zBoundary);
     }
     if( zFilename && blob_read_from_file(&fcontent, zFilename, ExtFILE)>0 ){
-      char *zFN = mprintf("%s", file_tail(zAs ? zAs : zFilename));
+      char *zFN = fossil_strdup(file_tail(zAs ? zAs : zFilename));
       int i;
       const char *zMime = mimetype_from_name(zFN);
       for(i=0; zFN[i]; i++){
@@ -1429,6 +1464,15 @@ void chat_command(void){
   }else if( strcmp(g.argv[2],"url")==0 ){
     /* Show the URL to access chat. */
     fossil_print("%s/chat\n", zUrl);
+  }else if( strcmp(g.argv[2],"purge")==0 ){
+    /* clear out expired chat messages:  chat messages that are older then
+    ** chat-keep-days and that are not one or the most recent chat-keep-count
+    ** messages. */
+    chat_create_tables();
+    chat_purge();
+  }else if( strcmp(g.argv[2],"reindex")==0 ){
+    /* Rebuild the FTS5 index on chat content */
+    chat_rebuild_index(1);
   }else{
     fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);
   }
